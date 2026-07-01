@@ -1,33 +1,87 @@
-import cv2
-import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 import os
 
-# Create output folder
+WIDTH = 1200
+HEIGHT = 900
+
 os.makedirs("dataset/pair001", exist_ok=True)
 
-# White background
-before = np.ones((600, 600, 3), dtype=np.uint8) * 255
+img = Image.new("RGB", (WIDTH, HEIGHT), "white")
+draw = ImageDraw.Draw(img)
 
-# Draw outer plate
-cv2.rectangle(before, (100, 100), (500, 500), (0, 0, 0), 3)
+# -----------------------
+# Border
+# -----------------------
+margin = 30
+draw.rectangle(
+    [margin, margin, WIDTH-margin, HEIGHT-margin],
+    outline="black",
+    width=3
+)
 
-# Circular holes
-cv2.circle(before, (180, 180), 25, (0, 0, 0), 3)
-cv2.circle(before, (420, 180), 25, (0, 0, 0), 3)
+# -----------------------
+# Title
+# -----------------------
+font = ImageFont.load_default()
 
-# Rectangular slot
-cv2.rectangle(before, (250, 300), (350, 340), (0, 0, 0), 3)
+draw.text(
+    (450, 45),
+    "MECHANICAL DRAWING",
+    fill="black",
+    font=font
+)
 
-# Save before image
-cv2.imwrite("dataset/pair001/before.png", before)
+# -----------------------
+# Component Plate
+# -----------------------
+draw.rectangle(
+    [250,200,950,650],
+    outline="black",
+    width=3
+)
 
-# Create after image
-after = before.copy()
+# -----------------------
+# Holes
+# -----------------------
+holes = [
+    (350,300),
+    (850,300),
+    (350,550),
+    (850,550)
+]
 
-# Add a new circular hole
-cv2.circle(after, (300, 430), 25, (0, 0, 0), 3)
+for x,y in holes:
 
-# Save after image
-cv2.imwrite("dataset/pair001/after.png", after)
+    draw.ellipse(
+        [x-20,y-20,x+20,y+20],
+        outline="black",
+        width=3
+    )
 
-print("Dataset created successfully!")
+# -----------------------
+# Slot
+# -----------------------
+draw.rounded_rectangle(
+    [520,390,680,460],
+    radius=20,
+    outline="black",
+    width=3
+)
+
+# -----------------------
+# Bottom Title Block
+# -----------------------
+
+draw.line(
+    [(30,760),(1170,760)],
+    fill="black",
+    width=2
+)
+
+draw.text((60,790),"PART : Mounting Plate",fill="black",font=font)
+draw.text((420,790),"SCALE : 1:1",fill="black",font=font)
+draw.text((700,790),"REV : 0",fill="black",font=font)
+
+img.save("dataset/pair001/before.png")
+
+print("before.png created")
